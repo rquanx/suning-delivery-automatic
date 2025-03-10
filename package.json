@@ -1,0 +1,27 @@
+{
+  "name": "suning-auto",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx src/index.ts",
+    "build": "unbuild"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@clack/prompts": "^0.10.0",
+    "ofetch": "^1.4.1",
+    "p-limit": "^6.2.0",
+    "pathe": "^2.0.3",
+    "tsx": "^4.19.3",
+    "unconfig": "^7.3.1"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.8.1",
+    "@types/node": "^22.13.10",
+    "unbuild": "^3.5.0",
+    "vitest": "^3.0.8"
+  }
+}
