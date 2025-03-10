@@ -62,7 +62,7 @@ export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
     await nextButton.click()
     await sleep(3000)
   }
-  return orders
+  return [...new Set(orders)]
 }
 
 
@@ -122,7 +122,16 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
   // const label = span.locator('label').first()
   // await sleep(100)
   // await label.click()
-  // await sleep(100)
+  await sleep(100)
+
+  try {
+    const isExistAreaHide = await page.locator('div.areaHide').isVisible()
+    if (isExistAreaHide) {
+      await page.locator('div.areaHide').click()
+      await sleep(100)
+    }
+  }
+  catch (e) { }
 
   const deliveryCompanyInput = inputs[1]
   const isExistDeliveryCompanyInput = await deliveryCompanyInput.isVisible()
@@ -135,7 +144,14 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
   }
   await deliveryCompanyInput.click()
   await sleep(100)
-  await infoContainer.click()
+  try {
+    const isExistAreaHide = await page.locator('div.areaHide').isVisible()
+    if (isExistAreaHide) {
+      await page.locator('div.areaHide').click()
+      await sleep(100)
+    }
+  }
+  catch (e) { }
   const targetCompany = deliveries.find(company => company.text?.includes?.(order.logistics_company))
   if (!targetCompany) {
     return {
@@ -148,14 +164,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
     e.value = company.text
     e.setAttribute('code', company.code)
   }, targetCompany)
-  try {
-    const isExistAreaHide = await page.locator('div.areaHide').isVisible()
-    if (isExistAreaHide) {
-      await page.locator('div.areaHide').click()
-      await sleep(100)
-    }
-  }
-  catch (e) { }
+
   const deliveryButtonContainer = page.locator('div.fh-center').first()
   const deliveryButton = deliveryButtonContainer.locator('a').first()
   const isExistDeliveryButton = await deliveryButton.isVisible()
