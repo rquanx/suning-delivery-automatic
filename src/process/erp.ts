@@ -6,6 +6,12 @@ const limit = pLimit(10)
 
 const erpSite = 'https://www.erp321.com/epaas'
 
+export const goToErp = async (ctx: BrowserContext) => {
+  const page = await ctx.newPage()
+  await page.goto(erpSite)
+  return page;
+}
+
 export interface DeliveryResponse {
   orderId: string | number
   logistics_company: string
@@ -109,8 +115,7 @@ const getDeliveryId = async (orderId: string | number, cookie: string): Promise<
 }
 
 export const getDeliveryIds = async (ctx: BrowserContext, orders: string[]) => {
-  const page = await ctx.newPage()
-  await page.goto(erpSite)
+  const page = await goToErp(ctx)
   await sleep(3000)
   const cookies = await ctx.cookies()
   const cookieStr = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';')

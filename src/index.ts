@@ -3,8 +3,8 @@ import { isCancel, cancel, text, select, log, confirm, spinner } from '@clack/pr
 import os from 'os'
 import { getProfileNames, type ChromeProfile } from './utils/browser/chrome';
 import { BrowserInstance } from './utils/browser/playwright';
-import { deliveryOrders, getAllDeliveryOrderNo } from './process/suning';
-import { getDeliveryIds, type DeliveryResponse } from './process/erp';
+import { checkIsLogin, deliveryOrders, getAllDeliveryOrderNo, goToSuning } from './process/suning';
+import { getDeliveryIds, goToErp, type DeliveryResponse } from './process/erp';
 
 
 const getProfile = async () => {
@@ -27,14 +27,16 @@ const getProfile = async () => {
   return projectType
 }
 
+let browser: BrowserInstance | null = null
 
 intro(`开始执行`);
+const s = spinner();
 
 try {
   const profile = await getProfile()
 
   if (!profile || typeof profile !== 'string') {
-    outro("无效的用户，执行终止")
+    outro("执行终止")
     process.exit(0);
   }
 
@@ -46,11 +48,14 @@ try {
     process.exit(0);
   }
 
-  const browser = new BrowserInstance()
+   browser = new BrowserInstance()
   const ctx = await browser.createContext({ profileName: profile, headless: false })
 
+  await goToErp(ctx)
+  await goToSuning(ctx)
+
   const shouldLoginContinue = await confirm({
-    message: '是否已登录聚水潭和苏宁云台',
+    message: '检查是否已登录聚水潭和苏宁云台',
   });
 
   if (!shouldLoginContinue) {
@@ -58,15 +63,26 @@ try {
     process.exit(0);
   }
 
-  const s = spinner();
+  await checkIsLogin(ctx)
+
   s.start('收集需要执行的订单');
   const orders = await getAllDeliveryOrderNo(ctx)
   s.stop(`收集到 ${orders.length} 个订单`);
+
+  if (orders.length === 0) {
+    outro("没有需要执行的订单")
+    process.exit(0);
+  }
 
   s.start('收集已发货的订单');
   const deliveryIds = await getDeliveryIds(ctx, orders)
   const validDeliveryIds = deliveryIds.filter(deliveryId => deliveryId.logistics_company && deliveryId.l_id) as DeliveryResponse[]
   s.stop(`收集到 ${validDeliveryIds.length} 个已发货的订单`);
+
+  if (validDeliveryIds.length === 0) {
+    outro("没有需要执行的订单")
+    process.exit(0);
+  }
 
   s.start('开始发货');
   const deliveryResults = await deliveryOrders(ctx, validDeliveryIds)
@@ -74,9 +90,12 @@ try {
 
   const successResults = deliveryResults.filter(result => result.isSuccess)
   const failedResults = deliveryResults.filter(result => !result.isSuccess)
-
   outro(`执行完成,${successResults.length} 个订单发货成功,${failedResults.length} 个订单发货失败`);
 }
 catch (error) {
+  s.stop("出现异常");
   outro(`执行失败,${error}`);
+}
+finally {
+  await browser?.close?.()
 }

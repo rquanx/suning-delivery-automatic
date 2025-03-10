@@ -3,17 +3,40 @@ import type { BrowserContext, Page } from "playwright"
 import { sleep } from "../utils/timer"
 import { customAlphabet } from 'nanoid'
 import pLimit from 'p-limit';
+import { confirm } from '@clack/prompts';
+import { deliveries } from './delivery-map';
 
 const nanoid = customAlphabet('1234567890', 17)
 const limit = pLimit(5)
 
+export const suningLoginSite = 'https://mpassport.suning.com/ids/login'
+
 export const suningDeliveryListSite = 'https://moms.suning.com/moms/delivery/toHaveSoldBabyMain.action?tabtype=3'
 export const getSuningDeliverySite = (no: number | string) => `https://moms.suning.com/moms/delivery/toDeliveryGoods.action?pagetype=1&b2corderNos=${no}`
+
+export const goToSuning = async (ctx: BrowserContext) => {
+  const page = await ctx.newPage()
+  await page.goto(suningDeliveryListSite)
+  return page;
+}
 
 const getCurrentPageOrders = async (page: Page) => {
   const orderNos = await page.locator('span.order-list-orderNum').all()
   const orders = (await Promise.all(orderNos.map(orderNo => orderNo.textContent()))).filter(Boolean) as string[]
   return orders.map(order => order.split('：')[1]).filter(Boolean)
+}
+
+export const checkIsLogin = async (ctx: BrowserContext) => {
+  const page = await goToSuning(ctx)
+  await sleep(3000)
+  if (page.url().includes(suningLoginSite)) {
+    const shouldLoginContinue = await confirm({
+      message: '检测到苏宁未登录，登录完成后继续',
+    });
+    if (!shouldLoginContinue) {
+      process.exit(0);
+    }
+  }
 }
 
 export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
@@ -36,7 +59,7 @@ export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
     if (!nextLink) {
       break;
     }
-    await page.goto(nextLink)
+    await nextButton.click()
     await sleep(3000)
   }
   return orders
@@ -83,10 +106,11 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
   await textArea.fill(snCode)
 
 
+  const infoContainer = page.locator('div.manySelfLogisticsfun')
+  const inputs = await infoContainer.locator('input').all()
   // 填写物流单号
-  const orderSpan = page.locator('span:has-text("物流单号：")').first()
-  const input = orderSpan.locator('input').first()
-  const isExistInput = await input.isVisible()
+  const orderInput = inputs[0]
+  const isExistInput = await orderInput.isVisible()
   if (!isExistInput) {
     return {
       orderId: order.orderId,
@@ -94,14 +118,13 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
       message: '找不到物流单号输入框',
     }
   }
-  await input.fill(order.l_id?.toString?.() || '')
+  await orderInput.fill(order.l_id?.toString?.() || '')
   // const label = span.locator('label').first()
   // await sleep(100)
   // await label.click()
   // await sleep(100)
 
-  const companySpan = orderSpan.locator('span:has-text("物流公司：")').first()
-  const deliveryCompanyInput = companySpan.locator('input').first()
+  const deliveryCompanyInput = inputs[1]
   const isExistDeliveryCompanyInput = await deliveryCompanyInput.isVisible()
   if (!isExistDeliveryCompanyInput) {
     return {
@@ -112,13 +135,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
   }
   await deliveryCompanyInput.click()
   await sleep(100)
-  const allLi = await companySpan.locator('div._logisCompanyOptionConFig li').all()
-  const allCompany = await Promise.all(allLi.map(async li => {
-    const text = await li.textContent()
-    const value = await li.getAttribute('code')
-    return { text, value }
-  }))
-  const targetCompany = allCompany.find(company => company.text?.includes?.(order.logistics_company))
+  const targetCompany = deliveries.find(company => company.text?.includes?.(order.logistics_company))
   if (!targetCompany) {
     return {
       orderId: order.orderId,
@@ -126,7 +143,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
       message: `未找到匹配的物流公司 ${order.logistics_company}`,
     }
   }
-  await deliveryCompanyInput.fill(targetCompany.value || '')
+  await deliveryCompanyInput.fill(targetCompany.code)
   const deliveryButtonContainer = page.locator('div.fh-center').first()
   const deliveryButton = deliveryButtonContainer.locator('a').first()
   const isExistDeliveryButton = await deliveryButton.isVisible()

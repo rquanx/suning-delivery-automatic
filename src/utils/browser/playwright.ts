@@ -64,7 +64,7 @@ export class BrowserInstance {
         channel: 'chrome',
         headless,
         proxy: proxy ? { server: proxy } : undefined,
-        args: [`--profile-directory=${profileName}`],
+        args: [`--profile-directory=${profileName}`, "--window-size=1920,1040"],
         ignoreDefaultArgs: ['--enable-automation', '--disable-extensions']
       })
       this.context = context
