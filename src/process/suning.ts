@@ -135,6 +135,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
   }
   await deliveryCompanyInput.click()
   await sleep(100)
+  await infoContainer.click()
   const targetCompany = deliveries.find(company => company.text?.includes?.(order.logistics_company))
   if (!targetCompany) {
     return {
@@ -143,7 +144,18 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
       message: `未找到匹配的物流公司 ${order.logistics_company}`,
     }
   }
-  await deliveryCompanyInput.fill(targetCompany.code)
+  await deliveryCompanyInput.evaluate((e, company) => {
+    e.value = company.text
+    e.setAttribute('code', company.code)
+  }, targetCompany)
+  try {
+    const isExistAreaHide = await page.locator('div.areaHide').isVisible()
+    if (isExistAreaHide) {
+      await page.locator('div.areaHide').click()
+      await sleep(100)
+    }
+  }
+  catch (e) { }
   const deliveryButtonContainer = page.locator('div.fh-center').first()
   const deliveryButton = deliveryButtonContainer.locator('a').first()
   const isExistDeliveryButton = await deliveryButton.isVisible()
