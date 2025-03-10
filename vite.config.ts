@@ -7,7 +7,7 @@ const builtinModules = [
   'crypto', 'dgram', 'dns', 'domain', 'events', 'fs', 'http', 'https', 'module',
   'net', 'os', 'path', 'punycode', 'process', 'querystring', 'readline', 'repl',
   'stream', 'string_decoder', 'sys', 'timers', 'tls', 'tty', 'url', 'util',
-  'v8', 'vm', 'zlib'
+  'v8', 'vm', 'zlib', 'async_hooks'
 ];
 
 // https://vitejs.dev/config/
@@ -20,6 +20,27 @@ export default defineConfig({
     },
     target: 'node18',
     rollupOptions: {
+      plugins: [{
+        name: 'replace-dirname',
+        transform(code) {
+          return code.replace(
+            /__dirname/g,
+            `new URL('.', import.meta.url).pathname`
+          );
+        }
+      },
+      {
+        name: 'replace-require-resolve',
+        transform(code) {
+          return code.replace(
+            /require\.resolve\(['"](.*)['"]\)/g,
+            (match, p1) => {
+              return `new URL('${p1}', import.meta.url).pathname`;
+            }
+          );
+        }
+      }
+      ],
       output: {
         format: 'es',
         inlineDynamicImports: true,
@@ -32,7 +53,7 @@ export default defineConfig({
       external: [
         ...builtinModules,
         ...builtinModules.map(m => `node:${m}`),
-        ...builtinModules.map(m => `node:${m}/promises`),
+        ...builtinModules.map(m => `node:${m}/promises`)
       ],
     },
     // 不要分割 vendor
@@ -41,9 +62,5 @@ export default defineConfig({
     emptyOutDir: true,
     // 使用 esbuild 压缩
     minify: 'esbuild',
-  },
-  // 不要转换 __dirname 等 Node.js 变量
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
   },
 });
