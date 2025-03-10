@@ -37,6 +37,7 @@ export const checkIsLogin = async (ctx: BrowserContext) => {
       process.exit(0);
     }
   }
+  await page.close()
 }
 
 export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
@@ -62,6 +63,7 @@ export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
     await nextButton.click()
     await sleep(3000)
   }
+  await page.close()
   return [...new Set(orders)]
 }
 
@@ -177,6 +179,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
   }
   await deliveryButton.click()
   await sleep(3000)
+  await page.close()
   return {
     orderId: order.orderId,
     isSuccess: true,
@@ -185,9 +188,5 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
 
 
 export const deliveryOrders = async (ctx: BrowserContext, orders: DeliveryResponse[]) => {
-  return Promise.all(orders.map(order => limit(async () => {
-    const r = await deliveryOrder(ctx, order)
-    await sleep(300)
-    return r;
-  })))
+  return Promise.all(orders.map(order => limit(async () => deliveryOrder(ctx, order))))
 }

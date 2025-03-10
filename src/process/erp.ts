@@ -125,5 +125,6 @@ export const getDeliveryIds = async (ctx: BrowserContext, orders: string[]) => {
     return r;
   }))
   const result = await Promise.all(input);
+  await page.close()
   return result
 }
