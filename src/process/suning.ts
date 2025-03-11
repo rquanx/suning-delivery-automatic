@@ -78,6 +78,8 @@ export interface DeliveryResult {
   orderId: string | number
   isSuccess: boolean
   message?: string
+  snCode?: string
+  logisticsCompany?: string
 }
 
 
@@ -190,6 +192,8 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
     return {
       orderId: order.orderId,
       isSuccess: true,
+      snCode,
+      logisticsCompany: targetCompany.text,
     }
   }
   catch (e: any) {

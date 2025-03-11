@@ -20,6 +20,8 @@ export const generateReport = (deliveries: DeliveryResponse[], orders: DeliveryR
       '物流公司': delivery.logistics_company,
       '物流单号': delivery.l_id,
       '发货结果': result?.isSuccess ? '成功' : '失败',
+      'sn码': result?.snCode,
+      '匹配的物流公司': result?.logisticsCompany,
       '错误信息': delivery?.message || result?.message,
     }
   })
