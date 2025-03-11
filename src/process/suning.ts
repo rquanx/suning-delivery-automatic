@@ -14,6 +14,8 @@ export const suningLoginSite = 'https://mpassport.suning.com/ids/login'
 export const suningDeliveryListSite = 'https://moms.suning.com/moms/delivery/toHaveSoldBabyMain.action?tabtype=3'
 export const getSuningDeliverySite = (no: number | string) => `https://moms.suning.com/moms/delivery/toDeliveryGoods.action?pagetype=1&b2corderNos=${no}`
 
+export const suningDeliveryPrefixSite = 'https://moms.suning.com/moms/delivery/toDeliveryGoods.action'
+
 export const goToSuning = async (ctx: BrowserContext) => {
   const page = await ctx.newPage()
   await page.goto(suningDeliveryListSite)
@@ -197,6 +199,13 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
     }
     await deliveryButton.click()
     await sleep(3000)
+    if (page.url().includes(suningDeliveryPrefixSite)) {
+      return {
+        orderId: order.orderId,
+        isSuccess: false,
+        message: '未处理场景',
+      }
+    }
     await page.close()
     return {
       orderId: order.orderId,
