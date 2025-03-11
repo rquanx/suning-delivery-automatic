@@ -1,9 +1,9 @@
 import { confirm, intro, outro, select, spinner } from '@clack/prompts';
-import { getDeliveryIds, goToErp, type DeliveryResponse } from './process/erp';
-import { checkIsLogin, deliveryOrders, getAllDeliveryOrderNo, goToSuning } from './process/suning';
+import { workflow } from './process';
+import { goToErp } from './process/erp';
+import { goToSuning } from './process/suning';
 import { getProfileNames } from './utils/browser/chrome';
 import { BrowserInstance } from './utils/browser/playwright';
-import { generateReport } from './report';
 
 const progressString = (current: number, total: number) => {
   return total > 0 ? `${current} / ${total}` : ''
@@ -64,48 +64,16 @@ try {
     await browser.close()
     process.exit(0);
   }
-
-  await checkIsLogin(ctx)
-
-  s.start('收集需要执行的订单');
-  const orders = await getAllDeliveryOrderNo(ctx)
-  if (typeof orders === 'string') {
-    s.stop()
-    outro(orders)
-    process.exit(0);
-  } else {
-    s.stop(`收集到 ${orders.length} 个订单`);
+  while (true) {
+    await workflow(ctx, s)
+    const shouldContinue = await confirm({
+      message: '是否再次执行',
+    });
+    if (!shouldContinue) {
+      break;
+    }
   }
-
-  if (orders.length === 0) {
-    outro("没有需要执行的订单")
-    process.exit(0);
-  }
-
-  let collectedOrder = 0
-  s.start(`收集已发货的订单 ${progressString(collectedOrder, orders.length)}`);
-  const deliveryIds = await getDeliveryIds(ctx, orders, () => {
-    s.message(`收集已发货的订单 ${progressString(++collectedOrder, orders.length)}`)
-  })
-  const validDeliveryIds = deliveryIds.filter(deliveryId => deliveryId.logistics_company && deliveryId.l_id) as DeliveryResponse[]
-  s.stop(`收集到 ${validDeliveryIds.length} 个已发货的订单`);
-
-  if (validDeliveryIds.length === 0) {
-    outro("没有需要执行的订单")
-    process.exit(0);
-  }
-
-  let deliveredOrder = 0
-  s.start(`发货 ${progressString(deliveredOrder, validDeliveryIds.length)}`);
-  const deliveryResults = await deliveryOrders(ctx, validDeliveryIds, () => {
-    s.message(`发货 ${progressString(++deliveredOrder, validDeliveryIds.length)}`)
-  })
-  s.stop("发货结束")
-
-  const successResults = deliveryResults.filter(result => result.isSuccess)
-  const failedResults = deliveryResults.filter(result => !result.isSuccess)
-  outro(`执行完成,${successResults.length} 个订单发货成功,${failedResults.length} 个订单发货失败`);
-  generateReport(validDeliveryIds, deliveryResults)
+  outro(`执行结束，停止程序`);
 }
 catch (error) {
   s.stop("出现异常");
