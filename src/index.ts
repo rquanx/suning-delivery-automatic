@@ -3,7 +3,7 @@ import { getDeliveryIds, goToErp, type DeliveryResponse } from './process/erp';
 import { checkIsLogin, deliveryOrders, getAllDeliveryOrderNo, goToSuning } from './process/suning';
 import { getProfileNames } from './utils/browser/chrome';
 import { BrowserInstance } from './utils/browser/playwright';
-
+import { generateReport } from './report';
 
 const getProfile = async () => {
   const profiles = getProfileNames()
@@ -95,6 +95,7 @@ try {
   const successResults = deliveryResults.filter(result => result.isSuccess)
   const failedResults = deliveryResults.filter(result => !result.isSuccess)
   outro(`执行完成,${successResults.length} 个订单发货成功,${failedResults.length} 个订单发货失败`);
+  generateReport(validDeliveryIds, deliveryResults)
 }
 catch (error) {
   s.stop("出现异常");

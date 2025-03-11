@@ -74,7 +74,7 @@ export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
 }
 
 
-interface DeliveryResult {
+export interface DeliveryResult {
   orderId: string | number
   isSuccess: boolean
   message?: string
@@ -193,7 +193,6 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
     }
   }
   catch (e: any) {
-    // log.error(`发货失败: ${e}`)
     return {
       orderId: order.orderId,
       isSuccess: false,
