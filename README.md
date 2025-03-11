@@ -130,5 +130,5 @@ The tool supports all major logistics companies operating in China and is regula
 ---
 
 <div align="center">
-  <sub>Powered by AI - Enhancing Efficiency Through Intelligent Automation</sub>
+  <sub>Powered by AI</sub>
 </div>
