@@ -66,8 +66,7 @@ export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
     }
     return [...new Set(orders)]
   } catch (error) {
-    // log.error(`获取订单失败: ${error}`)
-    return []
+    return `获取订单失败: ${error}`
   }
   finally {
     await page.close()

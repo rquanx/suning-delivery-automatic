@@ -65,7 +65,13 @@ try {
 
   s.start('收集需要执行的订单');
   const orders = await getAllDeliveryOrderNo(ctx)
-  s.stop(`收集到 ${orders.length} 个订单`);
+  if (typeof orders === 'string') {
+    s.stop()
+    outro(orders)
+    process.exit(0);
+  } else {
+    s.stop(`收集到 ${orders.length} 个订单`);
+  }
 
   if (orders.length === 0) {
     outro("没有需要执行的订单")

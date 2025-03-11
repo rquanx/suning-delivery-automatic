@@ -102,7 +102,7 @@ export const getDeliveryId = async (orderId: string | number, cookie: string): P
     if (!response) {
       return {
         orderId,
-        message: '获取物流信息失败，请检查 cookie 是否有效'
+        message: '获取物流信息失败'
       }
     }
     const jsonStr = response.split('|')[1]
