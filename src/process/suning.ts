@@ -66,7 +66,7 @@ export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
     }
     return [...new Set(orders)]
   } catch (error) {
-    log.error(`获取订单失败: ${error}`)
+    // log.error(`获取订单失败: ${error}`)
     return []
   }
   finally {
@@ -194,7 +194,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
     }
   }
   catch (e: any) {
-    log.error(`发货失败: ${e}`)
+    // log.error(`发货失败: ${e}`)
     return {
       orderId: order.orderId,
       isSuccess: false,
