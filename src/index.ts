@@ -48,7 +48,7 @@ try {
     process.exit(0);
   }
 
-   browser = new BrowserInstance()
+  browser = new BrowserInstance()
   const ctx = await browser.createContext({ profileName: profile, headless: false })
 
   await goToErp(ctx)
