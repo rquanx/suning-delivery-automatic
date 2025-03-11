@@ -27,12 +27,12 @@ export const workflow = async (ctx: BrowserContext, s: ReturnType<typeof spinner
   }
 
   let collectedOrder = 0
-  s.start(`收集已发货的订单 ${progressString(collectedOrder, orders.length)}`);
+  s.start(`收集订单物流信息中 ${progressString(collectedOrder, orders.length)}`);
   const deliveryIds = await getDeliveryIds(ctx, orders, () => {
-    s.message(`收集已发货的订单 ${progressString(++collectedOrder, orders.length)}`)
+    s.message(`收集订单物流信息中 ${progressString(++collectedOrder, orders.length)}`)
   })
   const validDeliveryIds = deliveryIds.filter(deliveryId => deliveryId.logistics_company && deliveryId.l_id) as DeliveryResponse[]
-  s.stop(`收集到 ${validDeliveryIds.length} 个已发货的订单`);
+  s.stop(`收集到 ${validDeliveryIds.length} 个订单物流信息`);
 
   if (validDeliveryIds.length === 0) {
     outro("没有需要执行的订单")
@@ -40,9 +40,9 @@ export const workflow = async (ctx: BrowserContext, s: ReturnType<typeof spinner
   }
 
   let deliveredOrder = 0
-  s.start(`发货 ${progressString(deliveredOrder, validDeliveryIds.length)}`);
+  s.start(`发货中 ${progressString(deliveredOrder, validDeliveryIds.length)}`);
   const deliveryResults = await deliveryOrders(ctx, validDeliveryIds, () => {
-    s.message(`发货 ${progressString(++deliveredOrder, validDeliveryIds.length)}`)
+    s.message(`发货中 ${progressString(++deliveredOrder, validDeliveryIds.length)}`)
   })
 
   const successResults = deliveryResults.filter(result => result.isSuccess)
