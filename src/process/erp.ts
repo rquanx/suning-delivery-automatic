@@ -16,9 +16,10 @@ export interface DeliveryResponse {
   orderId: string | number
   logistics_company: string
   l_id: string | number
+  message?: string
 }
 
-const getDeliveryId = async (orderId: string | number, cookie: string): Promise<Partial<DeliveryResponse>> => {
+export const getDeliveryId = async (orderId: string | number, cookie: string): Promise<Partial<DeliveryResponse>> => {
   try {
     // 基础参数配置
     const baseParams = {
@@ -73,7 +74,7 @@ const getDeliveryId = async (orderId: string | number, cookie: string): Promise<
     // 将对象转换为URL编码的字符串
     const formBody = new URLSearchParams(baseParams).toString()
 
-    const res = await fetch(`https://www.erp321.com/app/order/order/list.aspx?_c=jst-epaas&filterType=o_unsent&ts___=${Date.now()}&am___=LoadDataToJSON`, {
+    const res = await fetch(`https://www.erp321.com/app/order/order/list.aspx?_c=jst-epaas&filterType=o_unsent&am___=LoadDataToJSON`, {
       method: 'POST',
       headers: {
         accept: '*/*',
@@ -98,6 +99,12 @@ const getDeliveryId = async (orderId: string | number, cookie: string): Promise<
     })
 
     const response = await res.text()
+    if (!response) {
+      return {
+        orderId,
+        message: '获取物流信息失败，请检查 cookie 是否有效'
+      }
+    }
     const jsonStr = response.split('|')[1]
     const returnData = JSON.parse(jsonStr)
     const returnValue = JSON.parse(returnData.ReturnValue)
@@ -110,6 +117,7 @@ const getDeliveryId = async (orderId: string | number, cookie: string): Promise<
   } catch (e) {
     return {
       orderId,
+      message: e?.toString?.(),
     }
   }
 }
