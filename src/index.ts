@@ -5,6 +5,10 @@ import { getProfileNames } from './utils/browser/chrome';
 import { BrowserInstance } from './utils/browser/playwright';
 import { generateReport } from './report';
 
+const progressString = (current: number, total: number) => {
+  return total > 0 ? `${current} / ${total}` : ''
+}
+
 const getProfile = async () => {
   const profiles = getProfileNames()
   if (profiles.length === 0) {
@@ -78,8 +82,11 @@ try {
     process.exit(0);
   }
 
-  s.start('收集已发货的订单');
-  const deliveryIds = await getDeliveryIds(ctx, orders)
+  let collectedOrder = 0
+  s.start(`收集已发货的订单 ${progressString(collectedOrder, orders.length)}`);
+  const deliveryIds = await getDeliveryIds(ctx, orders, () => {
+    s.message(`收集已发货的订单 ${progressString(++collectedOrder, orders.length)}`)
+  })
   const validDeliveryIds = deliveryIds.filter(deliveryId => deliveryId.logistics_company && deliveryId.l_id) as DeliveryResponse[]
   s.stop(`收集到 ${validDeliveryIds.length} 个已发货的订单`);
 
@@ -88,8 +95,11 @@ try {
     process.exit(0);
   }
 
-  s.start('开始发货');
-  const deliveryResults = await deliveryOrders(ctx, validDeliveryIds)
+  let deliveredOrder = 0
+  s.start(`发货 ${progressString(deliveredOrder, validDeliveryIds.length)}`);
+  const deliveryResults = await deliveryOrders(ctx, validDeliveryIds, () => {
+    s.message(`发货 ${progressString(++deliveredOrder, validDeliveryIds.length)}`)
+  })
   s.stop("发货结束")
 
   const successResults = deliveryResults.filter(result => result.isSuccess)

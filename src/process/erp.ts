@@ -122,7 +122,7 @@ export const getDeliveryId = async (orderId: string | number, cookie: string): P
   }
 }
 
-export const getDeliveryIds = async (ctx: BrowserContext, orders: string[]) => {
+export const getDeliveryIds = async (ctx: BrowserContext, orders: string[], progress?: () => void) => {
   const page = await goToErp(ctx)
   await sleep(3000)
   const cookies = await ctx.cookies()
@@ -130,6 +130,7 @@ export const getDeliveryIds = async (ctx: BrowserContext, orders: string[]) => {
   const input = orders.map(order => limit(async () => {
     const r = await getDeliveryId(order, cookieStr)
     await sleep(300)
+    progress?.()
     return r;
   }))
   const result = await Promise.all(input);

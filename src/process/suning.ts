@@ -202,6 +202,10 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
 }
 
 
-export const deliveryOrders = async (ctx: BrowserContext, orders: DeliveryResponse[]) => {
-  return Promise.all(orders.map(order => limit(() => deliveryOrder(ctx, order))))
+export const deliveryOrders = async (ctx: BrowserContext, orders: DeliveryResponse[], progress?: () => void) => {
+  return Promise.all(orders.map(order => limit(async () => {
+    const result = await deliveryOrder(ctx, order)
+    progress?.()
+    return result
+  })))
 }
