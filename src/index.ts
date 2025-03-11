@@ -5,9 +5,6 @@ import { goToSuning } from './process/suning';
 import { getProfileNames } from './utils/browser/chrome';
 import { BrowserInstance } from './utils/browser/playwright';
 
-const progressString = (current: number, total: number) => {
-  return total > 0 ? `${current} / ${total}` : ''
-}
 
 const getProfile = async () => {
   const profiles = getProfileNames()
