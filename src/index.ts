@@ -13,7 +13,7 @@ const getProfile = async () => {
     process.exit(0);
   }
   if (profiles.length === 1) {
-    return profiles[0].realName
+    return profiles[0]
   }
   const projectType = await select({
     message: '选择浏览器用户',
@@ -22,6 +22,10 @@ const getProfile = async () => {
       label: profile.displayName
     }))
   });
+
+  if (typeof projectType === 'string') {
+    return profiles.find(profile => profile.realName === projectType)
+  }
 
   return projectType
 }
@@ -34,13 +38,13 @@ const s = spinner();
 try {
   const profile = await getProfile()
 
-  if (!profile || typeof profile !== 'string') {
+  if (!profile || typeof profile === 'symbol') {
     outro("执行终止")
     process.exit(0);
   }
 
   const shouldCloseBrowserContinue = await confirm({
-    message: `是否已关闭用户 ${profile} 的 chrome 实例`,
+    message: `是否已关闭用户 ${profile?.displayName} 的 chrome 实例`,
   });
 
   if (!shouldCloseBrowserContinue) {
@@ -48,7 +52,7 @@ try {
   }
 
   browser = new BrowserInstance()
-  const ctx = await browser.createContext({ profileName: profile, headless: false })
+  const ctx = await browser.createContext({ profileName: profile.realName, headless: false })
 
   await goToErp(ctx)
   await goToSuning(ctx)
