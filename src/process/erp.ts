@@ -73,7 +73,7 @@ const getDeliveryId = async (orderId: string | number, cookie: string): Promise<
     // 将对象转换为URL编码的字符串
     const formBody = new URLSearchParams(baseParams).toString()
 
-    const res = await fetch('https://www.erp321.com/app/order/order/list.aspx?_c=jst-epaas&filterType=o_unsent&ts___=1741613386275&am___=LoadDataToJSON', {
+    const res = await fetch(`https://www.erp321.com/app/order/order/list.aspx?_c=jst-epaas&filterType=o_unsent&ts___=${Date.now()}&am___=LoadDataToJSON`, {
       method: 'POST',
       headers: {
         accept: '*/*',
