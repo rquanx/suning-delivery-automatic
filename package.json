@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx src/index.ts",
-    "build": "vite build"
+    "build": "vite build",
+    "wt": "vitest watch"
   },
   "author": "",
   "license": "ISC",
