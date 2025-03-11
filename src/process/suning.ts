@@ -84,40 +84,62 @@ export interface DeliveryResult {
   logisticsCompany?: string
 }
 
+const fillSNCode = async (index: number, page: Page, order: DeliveryResponse) => {
+  const table = page.locator('table.sensitiveFlag')
+  const body = table.locator('tbody')
+  const row = body.locator('tr').nth(index + 1)
+  const text = await row.textContent()
+  if (!text?.includes?.('商品SN码信息录入')) {
+    return ''
+  }
+  const numRow = body.locator('tr').nth(index)
+  const numTd = numRow.locator('td').last()
+  const isExistNumTd = await numTd.isVisible()
+  if (!isExistNumTd) {
+    return {
+      orderId: order.orderId,
+      isSuccess: false,
+      message: '找不到商品数量',
+    }
+  }
+  const numText = await numTd.textContent()
+  const num = parseInt(numText?.split?.('x')?.[1] || '0')
+  const snCode = Array.from({ length: num }, () => nanoid()).join(';')
+  const textArea = row.locator('textarea').first()
+  const isExistTextArea = await textArea.isVisible()
+  if (!isExistTextArea) {
+    return {
+      orderId: order.orderId,
+      isSuccess: false,
+      message: '找不到 SN 码输入框',
+    }
+  }
+  await textArea.fill(snCode)
+  return snCode
+}
+
 
 const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Promise<DeliveryResult> => {
   try {
+    const snCodes: string[] = []
     const page = await ctx.newPage()
     await page.goto(getSuningDeliverySite(order.orderId))
     await sleep(3000)
-
-    // 填写 SN 码
     const table = page.locator('table.sensitiveFlag')
     const body = table.locator('tbody')
-    const row = body.locator('tr').first()
-    const numTd = row.locator('td').last()
-    const isExistNumTd = await numTd.isVisible()
-    if (!isExistNumTd) {
-      return {
-        orderId: order.orderId,
-        isSuccess: false,
-        message: '找不到商品数量',
+    const rows = await body.locator('tr').count();
+    for (let i = 0; i < rows; i += 2) {
+      const code = await fillSNCode(i, page, order)
+      if (code) {
+        if (typeof code !== 'string') {
+          return code
+        }
+        snCodes.push(code)
+      }
+      else {
+        break;
       }
     }
-    const numText = await numTd.textContent()
-    const num = parseInt(numText?.split?.('x')?.[1] || '0')
-    const snCode = Array.from({ length: num }, () => nanoid()).join(';')
-    const textArea = page.locator('textarea').first()
-    const isExistTextArea = await textArea.isVisible()
-    if (!isExistTextArea) {
-      return {
-        orderId: order.orderId,
-        isSuccess: false,
-        message: '找不到 SN 码输入框',
-      }
-    }
-    await textArea.fill(snCode)
-
 
     const infoContainer = page.locator('div.manySelfLogisticsfun')
     const inputs = await infoContainer.locator('input').all()
@@ -210,7 +232,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
     return {
       orderId: order.orderId,
       isSuccess: true,
-      snCode,
+      snCode: snCodes.join('\n'),
       logisticsCompany: targetCompany.text,
     }
   }
