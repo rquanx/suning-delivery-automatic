@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import fs from 'fs';
 
 // Node.js 内置模块列表
 const builtinModules = [
@@ -38,6 +39,14 @@ export default defineConfig({
               return `new URL('${p1}', import.meta.url).pathname`;
             }
           );
+        }
+      },
+      {
+        name: 'copy-bat-file',
+        closeBundle() {
+          const srcPath = resolve(__dirname, 'scripts/run.bat');
+          const destPath = resolve(__dirname, 'dist/run.bat');
+          fs.copyFileSync(srcPath, destPath);
         }
       }
       ],
