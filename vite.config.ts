@@ -11,6 +11,29 @@ const builtinModules = [
   'v8', 'vm', 'zlib', 'async_hooks'
 ];
 
+// 添加复制目录的辅助函数
+function copyDir(src: string, dest: string) {
+  if (!fs.existsSync(src)) return;
+
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = resolve(src, entry.name);
+    const destPath = resolve(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      copyDir(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -44,9 +67,15 @@ export default defineConfig({
       {
         name: 'copy-bat-file',
         closeBundle() {
-          const srcPath = resolve(__dirname, 'scripts/run.bat');
-          const destPath = resolve(__dirname, 'dist/run.bat');
-          fs.copyFileSync(srcPath, destPath);
+          // 复制 run.bat
+          const batSrcPath = resolve(__dirname, 'scripts/run.bat');
+          const batDestPath = resolve(__dirname, 'dist/run.bat');
+          fs.copyFileSync(batSrcPath, batDestPath);
+
+          // 复制 runtime 目录
+          const runtimeSrcPath = resolve(__dirname, 'runtime');
+          const runtimeDestPath = resolve(__dirname, 'dist/runtime');
+          copyDir(runtimeSrcPath, runtimeDestPath);
         }
       }
       ],
