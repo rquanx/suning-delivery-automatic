@@ -154,7 +154,16 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
       }
     }
     await deliveryCompanyInput.click()
-    await sleep(100)
+    await sleep(300)
+    try {
+      const isExistAreaHide = await page.locator('div.areaHide').isVisible()
+      if (isExistAreaHide) {
+        await page.locator('div.areaHide').click()
+        await sleep(100)
+      }
+    }
+    catch (e) { }
+    await sleep(300)
     try {
       const isExistAreaHide = await page.locator('div.areaHide').isVisible()
       if (isExistAreaHide) {
