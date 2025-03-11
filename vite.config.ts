@@ -99,6 +99,6 @@ export default defineConfig({
     // 清空输出目录
     emptyOutDir: true,
     // 使用 esbuild 压缩
-    minify: 'esbuild',
+    minify: false,
   },
 });
