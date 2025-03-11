@@ -6,3 +6,4 @@ test/**/pnpm-lock.yaml
 package.back.json
 cache.json
 runtime
+report.csv
