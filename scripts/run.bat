@@ -1,1 +1,3 @@
 node ./index.mjs
+
+pause
