@@ -41,7 +41,7 @@ try {
   }
 
   const shouldCloseBrowserContinue = await confirm({
-    message: '是否已关闭选中用户的 chrome 实例',
+    message: `是否已关闭用户 ${profile} 的 chrome 实例`,
   });
 
   if (!shouldCloseBrowserContinue) {
