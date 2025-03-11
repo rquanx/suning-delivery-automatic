@@ -1,10 +1,8 @@
-import { intro, outro } from '@clack/prompts';
-import { isCancel, cancel, text, select, log, confirm, spinner } from '@clack/prompts';
-import os from 'os'
-import { getProfileNames, type ChromeProfile } from './utils/browser/chrome';
-import { BrowserInstance } from './utils/browser/playwright';
-import { checkIsLogin, deliveryOrders, getAllDeliveryOrderNo, goToSuning } from './process/suning';
+import { confirm, intro, outro, select, spinner } from '@clack/prompts';
 import { getDeliveryIds, goToErp, type DeliveryResponse } from './process/erp';
+import { checkIsLogin, deliveryOrders, getAllDeliveryOrderNo, goToSuning } from './process/suning';
+import { getProfileNames } from './utils/browser/chrome';
+import { BrowserInstance } from './utils/browser/playwright';
 
 
 const getProfile = async () => {
