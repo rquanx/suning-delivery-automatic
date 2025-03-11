@@ -31,7 +31,7 @@ export class BrowserInstance {
   private linkProfile(profileName: string) {
     // 创建临时目录
     const tempId = nanoid()
-    this.tempDir = path.join(os.tmpdir(), 'es-suning-auto', `chrome-profile-${tempId}`)
+    this.tempDir = path.join(os.tmpdir(), 'suning-delivery-auto', `chrome-profile-${tempId}`)
     fs.mkdirSync(this.tempDir, { recursive: true })
 
     const sourceProfileParentDir = chromeUserDir()
