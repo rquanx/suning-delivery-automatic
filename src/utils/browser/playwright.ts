@@ -2,7 +2,7 @@ import fs from 'fs'
 import { nanoid } from 'nanoid'
 import os from 'os'
 import path from 'pathe'
-import { chromium, type Browser, type BrowserContext } from 'playwright'
+import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
 import { sleep } from '../timer'
 import { chromeUserDir } from './chrome'
 
@@ -17,7 +17,7 @@ export const clearContext = async (context: BrowserContext, clearLocalStorage = 
           console.log('clear local storage failed')
         }
       }
-      await page.close()
+      await closePage(page)
     } catch (ex2) {
     }
   }
@@ -83,10 +83,18 @@ export class BrowserInstance {
   async close() {
     try {
       if (this.context) {
-        await this.context.close()
+        try {
+          await this.context.close()
+        } catch (e) {
+          console.error('关闭浏览器上下文失败', e)
+        }
       }
       if (this.browser) {
-        await this.browser.close()
+        try {
+          await this.browser.close()
+        } catch (e) {
+          console.error('关闭浏览器失败', e)
+        }
       }
       await sleep(5000)
       // 清理临时目录
@@ -98,7 +106,15 @@ export class BrowserInstance {
         }
       }
     } catch (e) {
-      console.error(e)
+      console.error('关闭浏览器失败', e)
     }
+  }
+}
+
+export const closePage = async (page: Page) => {
+  try {
+    await page.close()
+  } catch (e) {
+    console.error('关闭页面失败', e)
   }
 }

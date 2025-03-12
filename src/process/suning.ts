@@ -1,11 +1,11 @@
-import type { DeliveryResponse } from './erp';
-import type { BrowserContext, Page } from "playwright"
-import { sleep } from "../utils/timer"
-import { customAlphabet } from 'nanoid'
-import pLimit from 'p-limit';
 import { confirm } from '@clack/prompts';
+import { customAlphabet } from 'nanoid';
+import pLimit from 'p-limit';
+import type { BrowserContext, Page } from "playwright";
+import { closePage } from '../utils/browser/playwright';
+import { sleep } from "../utils/timer";
 import { deliveries } from './delivery-map';
-import { log } from '@clack/prompts';
+import type { DeliveryResponse } from './erp';
 const nanoid = customAlphabet('1234567890', 17)
 const limit = pLimit(5)
 
@@ -39,7 +39,7 @@ export const checkIsLogin = async (ctx: BrowserContext) => {
       process.exit(0);
     }
   }
-  await page.close()
+  await closePage(page)
 }
 
 export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
@@ -71,7 +71,7 @@ export const getAllDeliveryOrderNo = async (ctx: BrowserContext) => {
     return `获取订单失败: ${error}`
   }
   finally {
-    await page.close()
+    await closePage(page)
   }
 }
 
@@ -228,7 +228,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
         message: '未处理场景',
       }
     }
-    await page.close()
+    await closePage(page)
     return {
       orderId: order.orderId,
       isSuccess: true,

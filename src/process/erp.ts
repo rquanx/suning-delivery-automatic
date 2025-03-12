@@ -1,6 +1,7 @@
 import type { BrowserContext } from "playwright"
 import { sleep } from "../utils/timer"
 import pLimit from "p-limit"
+import { closePage } from "../utils/browser/playwright"
 
 const limit = pLimit(10)
 
@@ -134,6 +135,6 @@ export const getDeliveryIds = async (ctx: BrowserContext, orders: string[], prog
     return r;
   }))
   const result = await Promise.all(input);
-  await page.close()
+  await closePage(page)
   return result
 }
