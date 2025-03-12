@@ -123,7 +123,7 @@ export const getDeliveryId = async (orderId: string | number, cookie: string): P
   }
 }
 
-export const getDeliveryIds = async (ctx: BrowserContext, orders: string[], progress?: () => void) => {
+export const getDeliveryIds = async (ctx: BrowserContext, orders: (string | number)[], progress?: () => void) => {
   const page = await goToErp(ctx)
   await sleep(3000)
   const cookies = await ctx.cookies()
