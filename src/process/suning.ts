@@ -4,7 +4,7 @@ import pLimit from 'p-limit';
 import type { BrowserContext, Page } from "playwright";
 import { closePage } from '../utils/browser/playwright';
 import { sleep } from "../utils/timer";
-import { deliveries } from './delivery-map';
+import { matchCompany } from './delivery-map';
 import type { DeliveryResponse } from './erp';
 const nanoid = customAlphabet('1234567890', 17)
 const limit = pLimit(5)
@@ -196,7 +196,7 @@ const deliveryOrder = async (ctx: BrowserContext, order: DeliveryResponse): Prom
       }
     }
     catch (e) { }
-    const targetCompany = deliveries.find(company => company.text?.includes?.(order.logistics_company))
+    const targetCompany = matchCompany(order.logistics_company)
     if (!targetCompany) {
       return {
         orderId: order.orderId,

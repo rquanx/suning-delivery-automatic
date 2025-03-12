@@ -1,4 +1,9 @@
-export const deliveries = [
+interface Delivery {
+  text: string
+  code: string
+}
+
+const deliveries: Delivery[] = [
   {
     "text": "AAE-中国",
     "code": "A01"
@@ -864,3 +869,17 @@ export const deliveries = [
     "code": "ZG1"
   }
 ]
+
+const preferMap: Record<string, Delivery> = {
+  '标准快递': {
+    "text": "EMS",
+    "code": "E01"
+  },
+}
+export const matchCompany = (company: string) => {
+  const prefer = preferMap[company]
+  if (prefer) {
+    return prefer
+  }
+  return deliveries.find(delivery => delivery.text === company)
+}
