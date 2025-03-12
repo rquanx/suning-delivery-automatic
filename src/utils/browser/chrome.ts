@@ -39,7 +39,7 @@ export function getProfileNames(): ChromeProfile[] {
       }
     }
   } catch (error) {
-    console.error(error)
+    console.error('获取 chrome 用户目录失败', error)
   }
   return list
 }

@@ -77,8 +77,11 @@ try {
   outro(`执行结束，停止程序`);
 }
 catch (error) {
-  s.stop("出现异常");
-  outro(`执行失败,${error}`);
+  try {
+    s.stop("出现异常");
+  } catch (error) {
+  }
+  outro(`执行失败, ${error instanceof Error ? `${error.message} ${error.stack}` : error}`);
 }
 finally {
   await browser?.close?.()
