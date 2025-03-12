@@ -8,7 +8,7 @@ const builtinModules = [
   'crypto', 'dgram', 'dns', 'domain', 'events', 'fs', 'http', 'https', 'module',
   'net', 'os', 'path', 'punycode', 'process', 'querystring', 'readline', 'repl',
   'stream', 'string_decoder', 'sys', 'timers', 'tls', 'tty', 'url', 'util',
-  'v8', 'vm', 'zlib', 'async_hooks'
+  'v8', 'vm', 'zlib', 'async_hooks', 'fs/promises'
 ];
 
 // 添加复制目录的辅助函数
@@ -99,6 +99,6 @@ export default defineConfig({
     // 清空输出目录
     emptyOutDir: true,
     // 使用 esbuild 压缩
-    minify: 'esbuild',
+    // minify: 'esbuild',
   },
 });
