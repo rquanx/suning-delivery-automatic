@@ -8,6 +8,8 @@
 //   },
 // })
 
-export const logger = (...args: any[]) => {
-  // console.log(111, ...args)
+export const logger = {
+  error: (...args: any[]) => {
+    // console.log(111, ...args)
+  }
 }
