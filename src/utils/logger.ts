@@ -1,15 +1,17 @@
-// import pino from 'pino'
-// import path from 'pathe'
+import log4js from 'log4js';
 
-// export const logger = pino({
-//   transport: {
-//     target: roll,
-//     options: { file: path.join(import.meta.dirname, 'logs', 'app'), frequency: 'daily', mkdir: true, extension: '.log', dateFormat: 'yyyy-MM-dd' }
-//   },
-// })
-
-export const logger = {
-  error: (...args: any[]) => {
-    // console.log(111, ...args)
+log4js.configure({
+  appenders: {
+    file: {
+      type: 'dateFile',
+      filename: 'logs/application.log',
+      pattern: 'yyyy-MM-dd',
+      alwaysIncludePattern: true
+    },
+  },
+  categories: {
+    default: { appenders: ['file'], level: 'info' }
   }
-}
+});
+
+export const logger = log4js.getLogger();
