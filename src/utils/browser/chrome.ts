@@ -1,6 +1,7 @@
 import path from 'pathe'
 import fs from 'fs'
 import os from 'os'
+import { logger } from '../logger'
 
 
 export interface ChromeProfile {
@@ -39,7 +40,7 @@ export function getProfileNames(): ChromeProfile[] {
       }
     }
   } catch (error) {
-    console.error('获取 chrome 用户目录失败', error)
+    logger.error('获取 chrome 用户目录失败', error)
   }
   return list
 }

@@ -20,6 +20,8 @@
     "p-limit": "^6.2.0",
     "papaparse": "^5.5.2",
     "pathe": "^2.0.3",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
     "playwright": "^1.51.0",
     "tsx": "^4.19.3",
     "unconfig": "^7.3.1",

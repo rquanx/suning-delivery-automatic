@@ -5,6 +5,7 @@ import path from 'pathe'
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
 import { sleep } from '../timer'
 import { chromeUserDir } from './chrome'
+import { logger } from '../logger'
 
 export const clearContext = async (context: BrowserContext, clearLocalStorage = true) => {
   const pages = context.pages()
@@ -14,7 +15,7 @@ export const clearContext = async (context: BrowserContext, clearLocalStorage = 
         try {
           await page.evaluate(() => `localStorage.clear()`)
         } catch {
-          console.log('clear local storage failed')
+          logger.error('clear local storage failed')
         }
       }
       await closePage(page)
@@ -86,14 +87,14 @@ export class BrowserInstance {
         try {
           await this.context.close()
         } catch (e) {
-          console.error('关闭浏览器上下文失败', e)
+          logger.error('关闭浏览器上下文失败', e)
         }
       }
       if (this.browser) {
         try {
           await this.browser.close()
         } catch (e) {
-          console.error('关闭浏览器失败', e)
+          logger.error('关闭浏览器失败', e)
         }
       }
       await sleep(5000)
@@ -106,7 +107,7 @@ export class BrowserInstance {
         }
       }
     } catch (e) {
-      console.error('关闭浏览器失败', e)
+      logger.error('关闭浏览器失败', e)
     }
   }
 }
@@ -115,6 +116,6 @@ export const closePage = async (page: Page) => {
   try {
     await page.close()
   } catch (e) {
-    console.error('关闭页面失败', e)
+    logger.error('关闭页面失败', e)
   }
 }

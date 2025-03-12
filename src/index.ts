@@ -4,6 +4,7 @@ import { goToErp } from './process/erp';
 import { goToSuning } from './process/suning';
 import { getProfileNames } from './utils/browser/chrome';
 import { BrowserInstance } from './utils/browser/playwright';
+import { logger } from './utils/logger';
 
 
 const getProfile = async () => {
@@ -81,6 +82,7 @@ catch (error) {
     s.stop("出现异常");
   } catch (error) {
   }
+  logger.error(error)
   outro(`执行失败, ${error instanceof Error ? `${error.message} ${error.stack}` : error}`);
 }
 finally {
