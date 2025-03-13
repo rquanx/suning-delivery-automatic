@@ -872,8 +872,8 @@ const deliveries: Delivery[] = [
 
 const preferMap: Record<string, Delivery> = {
   '标准快递': {
-    "text": "EMS",
-    "code": "E01"
+    "text": "邮政电商标快",
+    "code": "YZBK"
   },
 }
 export const matchCompany = (company: string) => {
