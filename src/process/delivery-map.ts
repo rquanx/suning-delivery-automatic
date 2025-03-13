@@ -881,5 +881,5 @@ export const matchCompany = (company: string) => {
   if (prefer) {
     return prefer
   }
-  return deliveries.find(delivery => delivery.text === company)
+  return deliveries.find(delivery => delivery.text.includes(company))
 }
