@@ -71,6 +71,10 @@ export default defineConfig({
           const batSrcPath = resolve(__dirname, 'scripts/run.bat');
           const batDestPath = resolve(__dirname, 'dist/run.bat');
           fs.copyFileSync(batSrcPath, batDestPath);
+          
+          const updateBatSrcPath = resolve(__dirname, 'scripts/update.bat');
+          const updateBatDestPath = resolve(__dirname, 'dist/update.bat');
+          fs.copyFileSync(updateBatSrcPath, updateBatDestPath);
 
           // 复制 runtime 目录
           const runtimeSrcPath = resolve(__dirname, 'runtime');
