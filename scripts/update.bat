@@ -1,5 +1,16 @@
 @echo off
-echo 正在更新 JS 文件...
-curl -o script.js https://cdn.jsdelivr.net/gh/rquanx/suning-delivery-automatic@main/dist/index.mjs
-echo 更新完成！
-pause
+if not exist "index.mjs" (
+    echo. > index.mjs
+)
+
+echo updating...
+certutil -urlcache -split -f "https://cdn.jsdelivr.net/gh/rquanx/suning-delivery-automatic@main/dist/index.mjs" index.mjs >nul
+
+if %errorlevel% equ 0 (
+    echo Update success
+) else (
+    echo Update failed, please check your network
+)
+echo.
+echo Press any key to exit...
+pause >nul
