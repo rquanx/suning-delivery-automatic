@@ -4,7 +4,7 @@ if not exist "index.mjs" (
 )
 
 echo updating...
-certutil -urlcache -split -f "https://cdn.jsdelivr.net/gh/rquanx/suning-delivery-automatic@main/dist/index.mjs" index.mjs >nul
+certutil -urlcache -split -f "https://gh-proxy.com/github.com/rquanx/suning-delivery-automatic/blob/main/dist/index.mjs" index.mjs >nul
 
 if %errorlevel% equ 0 (
     echo Update success
