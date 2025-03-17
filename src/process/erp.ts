@@ -20,7 +20,7 @@ export interface DeliveryResponse {
   message?: string
 }
 
-export const getDeliveryId = async (orderId: string | number, cookie: string): Promise<Partial<DeliveryResponse>> => {
+export const getDeliveryId = async (viewsState: string, orderId: string | number, cookie: string): Promise<Partial<DeliveryResponse>> => {
   try {
     // 基础参数配置
     const baseParams = {
@@ -126,10 +126,17 @@ export const getDeliveryId = async (orderId: string | number, cookie: string): P
 export const getDeliveryIds = async (ctx: BrowserContext, orders: (string | number)[], progress?: () => void) => {
   const page = await goToErp(ctx)
   await sleep(3000)
+  const viewsState = await page.evaluate(() => {
+    // @ts-ignore
+    return document?.querySelector?.('#iframe-聚水潭欢迎您')?.contentWindow?.document?.querySelector?.('input[id="__VIEWSTATE"]')?.getAttribute?.('value')
+  })
+  if (!viewsState) {
+    throw new Error('获取viewsState失败')
+  }
   const cookies = await ctx.cookies()
-  const cookieStr = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join(';')
+  const cookieStr = cookies.filter(c => c.domain === '.erp321.com' || c.domain === 'www.erp321.com').map(cookie => `${cookie.name}=${cookie.value}`).join(';')
   const input = orders.map(order => limit(async () => {
-    const r = await getDeliveryId(order, cookieStr)
+    const r = await getDeliveryId(viewsState, order, cookieStr)
     await sleep(300)
     progress?.()
     return r;
