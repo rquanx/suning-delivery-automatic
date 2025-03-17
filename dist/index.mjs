@@ -85129,10 +85129,10 @@ const goToErp = async (ctx) => {
   await page2.goto(erpSite);
   return page2;
 };
-const getDeliveryId = async (orderId, cookie) => {
+const getDeliveryId = async (viewsState, orderId, cookie) => {
   try {
     const baseParams = {
-      __VIEWSTATE: "/wEPDwUKLTk0NjkwNDc0OGRkFAg4d/Ue3PQqRBOlFBC6+1An6TA=",
+      __VIEWSTATE: "/wEPDwUKLTg5NDY5MjY3MGRkdgQjzOR1eVC5DO5/BTm0IdK8Yqw=",
       __VIEWSTATEGENERATOR: "C8154B07",
       insurePrice: "",
       _jt_page_count_enabled: "",
@@ -85226,10 +85226,16 @@ const getDeliveryId = async (orderId, cookie) => {
 const getDeliveryIds = async (ctx, orders, progress2) => {
   const page2 = await goToErp(ctx);
   await sleep(3e3);
+  const viewsState = await page2.evaluate(() => {
+    return document?.querySelector?.("#iframe-聚水潭欢迎您")?.contentWindow?.document?.querySelector?.('input[id="__VIEWSTATE"]')?.getAttribute?.("value");
+  });
+  if (!viewsState) {
+    throw new Error("获取viewsState失败");
+  }
   const cookies = await ctx.cookies();
-  const cookieStr = cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join(";");
+  const cookieStr = cookies.filter((c2) => c2.domain === ".erp321.com" || c2.domain === "www.erp321.com").map((cookie) => `${cookie.name}=${cookie.value}`).join(";");
   const input2 = orders.map((order) => limit$1(async () => {
-    const r2 = await getDeliveryId(order, cookieStr);
+    const r2 = await getDeliveryId(viewsState, order, cookieStr);
     await sleep(300);
     progress2?.();
     return r2;
