@@ -24,7 +24,7 @@ export const getDeliveryId = async (orderId: string | number, cookie: string): P
   try {
     // 基础参数配置
     const baseParams = {
-      __VIEWSTATE: '/wEPDwUKLTk0NjkwNDc0OGRkFAg4d/Ue3PQqRBOlFBC6+1An6TA=',
+      __VIEWSTATE: '/wEPDwUKLTg5NDY5MjY3MGRkdgQjzOR1eVC5DO5/BTm0IdK8Yqw=',
       __VIEWSTATEGENERATOR: 'C8154B07',
       insurePrice: '',
       _jt_page_count_enabled: '',
