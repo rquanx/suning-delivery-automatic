@@ -86114,6 +86114,10 @@ const preferMap = {
   "标准快递": {
     "text": "邮政电商标快",
     "code": "YZBK"
+  },
+  "京东配送": {
+    "text": "京东物流",
+    "code": "JDW"
   }
 };
 const matchCompany = (company) => {
