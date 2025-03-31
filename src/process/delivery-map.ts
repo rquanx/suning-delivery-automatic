@@ -875,6 +875,10 @@ const preferMap: Record<string, Delivery> = {
     "text": "邮政电商标快",
     "code": "YZBK"
   },
+  '京东配送': {
+    "text": "京东物流",
+    "code": "JDW"
+  }
 }
 export const matchCompany = (company: string) => {
   const prefer = preferMap[company]
