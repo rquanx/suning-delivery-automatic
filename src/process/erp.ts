@@ -6,10 +6,17 @@ import { closePage } from "../utils/browser/playwright"
 const limit = pLimit(10)
 
 const erpSite = 'https://www.erp321.com/epaas'
+const erpOrderList = 'https://www.erp321.com/app/order/order/list.aspx?_c=jst-epaas'
 
 export const goToErp = async (ctx: BrowserContext) => {
   const page = await ctx.newPage()
   await page.goto(erpSite)
+  return page;
+}
+
+export const goToErpOrder = async (ctx: BrowserContext) => {
+  const page = await ctx.newPage()
+  await page.goto(erpOrderList)
   return page;
 }
 
@@ -24,7 +31,7 @@ export const getDeliveryId = async (viewsState: string, orderId: string | number
   try {
     // 基础参数配置
     const baseParams = {
-      __VIEWSTATE: '/wEPDwUKLTg5NDY5MjY3MGRkdgQjzOR1eVC5DO5/BTm0IdK8Yqw=',
+      __VIEWSTATE: viewsState,
       __VIEWSTATEGENERATOR: 'C8154B07',
       insurePrice: '',
       _jt_page_count_enabled: '',
@@ -124,11 +131,11 @@ export const getDeliveryId = async (viewsState: string, orderId: string | number
 }
 
 export const getDeliveryIds = async (ctx: BrowserContext, orders: (string | number)[], progress?: () => void) => {
-  const page = await goToErp(ctx)
+  const page = await goToErpOrder(ctx)
   await sleep(3000)
   const viewsState = await page.evaluate(() => {
     // @ts-ignore
-    return document?.querySelector?.('#iframe-聚水潭欢迎您')?.contentWindow?.document?.querySelector?.('input[id="__VIEWSTATE"]')?.getAttribute?.('value')
+    return document?.querySelector?.('input[id="__VIEWSTATE"]')?.getAttribute?.('value')
   })
   if (!viewsState) {
     throw new Error('获取viewsState失败')
