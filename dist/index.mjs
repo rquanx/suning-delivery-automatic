@@ -85041,27 +85041,31 @@ class BrowserInstance {
   browser = null;
   context = null;
   tempDir = null;
+  copyShareFile(sourceProfileParentDir, fileName) {
+    const sourceFile = posix.join(sourceProfileParentDir, fileName);
+    const targetFile = posix.join(this.tempDir, fileName);
+    if (require$$0$2.existsSync(sourceFile)) {
+      require$$0$2.copyFileSync(sourceFile, targetFile);
+    }
+  }
+  linkShareFolder(sourceFolder, targetFolder) {
+    if (require$$0$2.existsSync(sourceFolder)) {
+      if (process.platform === "win32") {
+        require$$0$2.symlinkSync(sourceFolder, targetFolder, "junction");
+      } else {
+        require$$0$2.symlinkSync(sourceFolder, targetFolder);
+      }
+      return;
+    }
+  }
   linkProfile(profileName) {
     const tempId = nanoid$1();
     this.tempDir = posix.join(require$$1$3.tmpdir(), "suning-delivery-automatic", `chrome-profile-${tempId}`);
     require$$0$2.mkdirSync(this.tempDir, { recursive: true });
     const sourceProfileParentDir = chromeUserDir();
-    const sourceProfileDir = posix.join(sourceProfileParentDir, profileName);
     const targetProfileDir = posix.join(this.tempDir, profileName);
-    const sourceLocalState = posix.join(sourceProfileParentDir, "Local State");
-    const targetLocalState = posix.join(this.tempDir, "Local State");
-    if (require$$0$2.existsSync(sourceLocalState)) {
-      require$$0$2.copyFileSync(sourceLocalState, targetLocalState);
-    }
-    if (require$$0$2.existsSync(sourceProfileDir)) {
-      if (process.platform === "win32") {
-        require$$0$2.symlinkSync(sourceProfileDir, targetProfileDir, "junction");
-      } else {
-        require$$0$2.symlinkSync(sourceProfileDir, targetProfileDir);
-      }
-      return;
-    }
-    throw new Error("初始化失败");
+    this.copyShareFile(sourceProfileParentDir, "Local State");
+    this.linkShareFolder(sourceProfileParentDir, targetProfileDir);
   }
   async createContext(options) {
     const { profileName, headless, proxy } = options;
@@ -85124,15 +85128,21 @@ const closePage = async (page2) => {
 };
 const limit$1 = pLimit(10);
 const erpSite = "https://www.erp321.com/epaas";
+const erpOrderList = "https://www.erp321.com/app/order/order/list.aspx?_c=jst-epaas";
 const goToErp = async (ctx) => {
   const page2 = await ctx.newPage();
   await page2.goto(erpSite);
   return page2;
 };
+const goToErpOrder = async (ctx) => {
+  const page2 = await ctx.newPage();
+  await page2.goto(erpOrderList);
+  return page2;
+};
 const getDeliveryId = async (viewsState, orderId, cookie) => {
   try {
     const baseParams = {
-      __VIEWSTATE: "/wEPDwUKLTg5NDY5MjY3MGRkdgQjzOR1eVC5DO5/BTm0IdK8Yqw=",
+      __VIEWSTATE: viewsState,
       __VIEWSTATEGENERATOR: "C8154B07",
       insurePrice: "",
       _jt_page_count_enabled: "",
@@ -85224,10 +85234,10 @@ const getDeliveryId = async (viewsState, orderId, cookie) => {
   }
 };
 const getDeliveryIds = async (ctx, orders, progress2) => {
-  const page2 = await goToErp(ctx);
+  const page2 = await goToErpOrder(ctx);
   await sleep(3e3);
   const viewsState = await page2.evaluate(() => {
-    return document?.querySelector?.("#iframe-聚水潭欢迎您")?.contentWindow?.document?.querySelector?.('input[id="__VIEWSTATE"]')?.getAttribute?.("value");
+    return document?.querySelector?.('input[id="__VIEWSTATE"]')?.getAttribute?.("value");
   });
   if (!viewsState) {
     throw new Error("获取viewsState失败");
