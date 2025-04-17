@@ -29,6 +29,26 @@ export class BrowserInstance {
   private browser: Browser | null = null
   private context: BrowserContext | null = null
   private tempDir: string | null = null
+
+  private copyShareFile(sourceProfileParentDir: string, fileName: string) {
+    const sourceFile = path.join(sourceProfileParentDir, fileName)
+    const targetFile = path.join(this.tempDir!, fileName)
+    if (fs.existsSync(sourceFile)) {
+      fs.copyFileSync(sourceFile, targetFile)
+    }
+  }
+
+  private linkShareFolder(sourceFolder: string, targetFolder: string) {
+    if (fs.existsSync(sourceFolder)) {
+      if (process.platform === 'win32') {
+        fs.symlinkSync(sourceFolder, targetFolder, 'junction')
+      } else {
+        fs.symlinkSync(sourceFolder, targetFolder)
+      }
+      return
+    }
+  }
+
   private linkProfile(profileName: string) {
     // 创建临时目录
     const tempId = nanoid()
@@ -36,25 +56,78 @@ export class BrowserInstance {
     fs.mkdirSync(this.tempDir, { recursive: true })
 
     const sourceProfileParentDir = chromeUserDir()
-    // 创建软链接
-    const sourceProfileDir = path.join(sourceProfileParentDir, profileName)
     const targetProfileDir = path.join(this.tempDir, profileName)
+    this.copyShareFile(sourceProfileParentDir, 'Local State')
+    this.linkShareFolder(sourceProfileParentDir, targetProfileDir)
+    
+    
+    // const sourceProfileDir = path.join(sourceProfileParentDir, profileName)
+    // const list = fs.readdirSync(sourceProfileParentDir)
+    // list.forEach(item => {
+    //   const fullPath = path.join(sourceProfileParentDir, item)
+    //   const stat = fs.statSync(fullPath)
+    //   if (stat.isDirectory()) {
+    //     this.linkShareFolder(sourceProfileDir, path.join(this.tempDir!, item))
+    //   }
+    //   if (stat.isFile()) {
+    //     this.copyShareFile(sourceProfileParentDir, item)
+    //   }
+    // })
 
-    const sourceLocalState = path.join(sourceProfileParentDir, 'Local State')
-    const targetLocalState = path.join(this.tempDir, 'Local State')
-    if (fs.existsSync(sourceLocalState)) {
-      fs.copyFileSync(sourceLocalState, targetLocalState)
-    }
-
-    if (fs.existsSync(sourceProfileDir)) {
-      if (process.platform === 'win32') {
-        fs.symlinkSync(sourceProfileDir, targetProfileDir, 'junction')
-      } else {
-        fs.symlinkSync(sourceProfileDir, targetProfileDir)
-      }
-      return
-    }
-    throw new Error('初始化失败')
+    // this.copyShareFile(sourceProfileParentDir, 'first_party_sets.db')
+    // this.copyShareFile(sourceProfileParentDir, 'Module Info Cache')
+    // this.copyShareFile(sourceProfileParentDir, 'en-US-10-1.bdic')
+    // this.copyShareFile(sourceProfileParentDir, 'CrashpadMetrics-active.pma')
+    // this.copyShareFile(sourceProfileParentDir, 'BrowserMetrics-spare.pma')
+    // this.linkShareFolder(sourceProfileDir, path.join(this.tempDir, profileName));
+    // const folders = ["AmountExtractionHeuristicRegexes",
+    //   "PrivacySandboxAttestationsPreloaded",
+    //   "AutofillStates",
+    //   "ProbabilisticRevealTokenRegistry",
+    //   "BrowserMetrics",
+    //   "CertificateRevocation",
+    //   "ClientSidePhishing",
+    //   "CookieReadinessList",
+    //   "Crashpad",
+    //   "Crowd Deny",
+    //   "RecoveryImproved",
+    //   "SSLErrorAssistant",
+    //   "DeferredBrowserMetrics",
+    //   "Safe Browsing",
+    //   "FileTypePolicies",
+    //   "SafetyTips",
+    //   "ShaderCache",
+    //   "FirstPartySetsPreloaded",
+    //   "Subresource Filter",
+    //   "GrShaderCache",
+    //   "System Profile",
+    //   "GraphiteDawnCache",
+    //   "ThirdPartyModuleList64",
+    //   "TpcdMetadata",
+    //   "TrustTokenKeyCommitments",
+    //   "Webstore Downloads",
+    //   "Local Traces",
+    //   "WidevineCdm",
+    //   "MEIPreload",
+    //   "ZxcvbnData",
+    //   "MediaFoundationWidevineCdm",
+    //   "component_crx_cache",
+    //   "Notification Resources",
+    //   "extensions_crx_cache",
+    //   "NotificationHelperMetrics",
+    //   "OnDeviceHeadSuggestModel",
+    //   "hyphen-data",
+    //   "OpenCookieDatabase",
+    //   "optimization_guide_model_store",
+    //   "OptimizationHints",
+    //   "screen_ai",
+    //   "OriginTrials",
+    //   "segmentation_platform",
+    //   "PKIMetadata",
+    //   "PnaclTranslationCache"]
+    // folders.forEach(item => {
+    //   this.linkShareFolder(sourceProfileDir, path.join(this.tempDir!, item))
+    // })
   }
 
   async createContext(options: { profileName?: string; headless?: boolean; proxy?: string }) {
