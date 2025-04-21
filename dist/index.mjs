@@ -86359,6 +86359,7 @@ const workflow = async (ctx, s2) => {
   await checkIsLogin(ctx);
   s2.start("收集需要执行的订单");
   const orders = await getAllDeliveryOrderNo(ctx);
+  logger.info(`收集到 ${typeof orders === "string" ? orders || 0 : orders.length} 个订单`);
   if (typeof orders === "string") {
     s2.stop();
     Se(orders);
@@ -86388,6 +86389,7 @@ const workflow = async (ctx, s2) => {
   });
   const successResults = deliveryResults.filter((result) => result.isSuccess);
   const failedResults = deliveryResults.filter((result) => !result.isSuccess);
+  logger.info(`发货结束 ${successResults.length} 个订单发货成功,${failedResults.length} 个订单发货失败`);
   generateReport(validDeliveryIds, deliveryResults);
   s2.stop(`发货结束 ${successResults.length} 个订单发货成功,${failedResults.length} 个订单发货失败,报告已生成`);
 };
@@ -86414,6 +86416,7 @@ const getProfile = async () => {
 };
 let browser = null;
 Ie(`开始执行`);
+logger.info("开始执行");
 const s = Y();
 try {
   const profile = await getProfile();
@@ -86448,6 +86451,7 @@ try {
     }
   }
   Se(`执行结束，停止程序`);
+  logger.info("执行结束，停止程序");
 } catch (error) {
   try {
     s.stop("出现异常");
