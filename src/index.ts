@@ -34,6 +34,7 @@ const getProfile = async () => {
 let browser: BrowserInstance | null = null
 
 intro(`开始执行`);
+logger.info("开始执行")
 const s = spinner();
 
 try {
@@ -76,6 +77,7 @@ try {
     }
   }
   outro(`执行结束，停止程序`);
+  logger.info("执行结束，停止程序")
 }
 catch (error) {
   try {

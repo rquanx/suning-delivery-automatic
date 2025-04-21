@@ -3,6 +3,7 @@ import type { BrowserContext } from 'playwright';
 import { generateReport } from '../report';
 import { getDeliveryIds, type DeliveryResponse } from './erp';
 import { checkIsLogin, deliveryOrders, getAllDeliveryOrderNo } from './suning';
+import { logger } from '../utils/logger';
 
 const progressString = (current: number, total: number) => {
   return total > 0 ? `${current} / ${total}` : ''
@@ -13,6 +14,9 @@ export const workflow = async (ctx: BrowserContext, s: ReturnType<typeof spinner
 
   s.start('收集需要执行的订单');
   const orders = await getAllDeliveryOrderNo(ctx)
+
+  logger.info(`收集到 ${typeof orders === 'string' ? (orders || 0) :  orders.length} 个订单`)
+
   if (typeof orders === 'string') {
     s.stop()
     outro(orders)
@@ -47,6 +51,7 @@ export const workflow = async (ctx: BrowserContext, s: ReturnType<typeof spinner
 
   const successResults = deliveryResults.filter(result => result.isSuccess)
   const failedResults = deliveryResults.filter(result => !result.isSuccess)
+  logger.info(`发货结束 ${successResults.length} 个订单发货成功,${failedResults.length} 个订单发货失败`)
   generateReport(validDeliveryIds, deliveryResults)
   s.stop(`发货结束 ${successResults.length} 个订单发货成功,${failedResults.length} 个订单发货失败,报告已生成`)
 }
