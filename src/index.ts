@@ -77,7 +77,6 @@ try {
     }
   }
   outro(`执行结束，停止程序`);
-  logger.info("执行结束，停止程序")
 }
 catch (error) {
   try {
@@ -88,5 +87,6 @@ catch (error) {
   outro(`执行失败, ${error instanceof Error ? `${error.message} ${error.stack}` : error}`);
 }
 finally {
+  logger.info("执行结束，停止程序")
   await browser?.close?.()
 }
