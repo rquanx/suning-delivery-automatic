@@ -37,7 +37,7 @@ export const workflow = async (ctx: BrowserContext, s: ReturnType<typeof spinner
   })
   const validDeliveryIds = deliveryIds.filter(deliveryId => deliveryId.logistics_company && deliveryId.l_id) as DeliveryResponse[]
   s.stop(`收集到 ${validDeliveryIds.length} 个订单物流信息`);
-
+  logger.info(`收集到 ${validDeliveryIds.length} 个订单物流信息`);
   if (validDeliveryIds.length === 0) {
     outro("没有需要执行的订单")
     process.exit(0);
